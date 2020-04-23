@@ -1,0 +1,12 @@
+lib=hello.so
+src=HelloJNI.c
+obj=$(src:.c=.o);
+all:$lib
+	
+$lib:$obj HelloJNI.h
+	gcc -shared -o $@ $< -I. -I/
+
+# $* matches the target filename without the extension
+HelloJNI.h : ../bin/HelloJNI.class
+	javac -h . ../src/HelloJNI.java
+	

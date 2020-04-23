@@ -1,0 +1,9 @@
+13:56:59 **** Incremental Build of configuration Default for project HelloJNI ****
+make all 
+make -C jni/
+make[1]: Entering directory '/home/anhpt0135/java-workspace/java_native/HelloJNI/jni'
+make[1]: 'all' is up to date.
+make[1]: Leaving directory '/home/anhpt0135/java-workspace/java_native/HelloJNI/jni'
+
+13:57:00 Build Finished. 0 errors, 0 warnings. (took 524ms)
+

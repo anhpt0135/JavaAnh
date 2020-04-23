@@ -1,0 +1,11 @@
+/*
+ * HelloJNI.c
+ *
+ *  Created on: Apr 23, 2020
+ *      Author: anhpt0135
+ */
+
+#include <stdio.h>
+#include "HelloJNI.h"
+
+

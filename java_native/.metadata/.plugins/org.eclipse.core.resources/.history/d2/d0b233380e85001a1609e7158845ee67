@@ -1,0 +1,13 @@
+lib=hello.so
+src=HelloJNI.c
+obj=$(src:.c=.o);
+CFLAGS=-I. -I/usr/lib/jvm/default-java/include -I/usr/lib/jvm/default-java/include/linux
+
+all:$(lib)
+	
+$(lib):$(obj) HelloJNI.h
+	gcc -shared $(CFLAG) -o $@ $< -fPIC
+
+HelloJNI.h : ../bin/HelloJNI.class
+	javac -h . ../src/HelloJNI.java
+	

@@ -1,0 +1,14 @@
+/*
+ * HelloJNI.c
+ *
+ *  Created on: Apr 23, 2020
+ *      Author: anhpt0135
+ */
+#include <jni.h>
+#include <stdio.h>
+#include "HelloJNI.h"
+
+JNIEXPORT void JNICALL Java_HelloJNI_sayHello (JNIEnv *env, jobject jobj, jstring str){
+	printf("Hello from HelloJNI.c\n");
+	return;
+}

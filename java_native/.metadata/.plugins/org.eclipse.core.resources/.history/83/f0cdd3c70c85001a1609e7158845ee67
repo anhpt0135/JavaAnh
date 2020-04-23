@@ -1,0 +1,13 @@
+lib=hello.so
+src=HelloJNI.c
+obj=$(src:.c=.o);
+CFLAG=-shared -I. -I/usr/lib/jvm/java-11-oracle/include/linux -I/usr/lib/jvm/java-11-oracle/include
+all:$(lib)
+	
+$lib:$(obj) HelloJNI.h
+	gcc $(CFLAG) -o $@ $< -fPIC
+
+# $* matches the target filename without the extension
+HelloJNI.h : ../bin/HelloJNI.class
+	javac -h . ../src/HelloJNI.java
+	
