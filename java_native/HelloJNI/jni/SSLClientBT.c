@@ -118,19 +118,24 @@ static int sendSecuredCommand(const char *ip_Addr, const char *portStr, const ch
 	mbedtls_ssl_conf_rng(&g_conf, mbedtls_ctr_drbg_random, &ctr_drbg);
 	mbedtls_ssl_conf_read_timeout(&g_conf, 5000);
 
-	if(!strlen(pskStr)){
+	if(!strlen(pskStr) && !strlen(pskIdentityStr)){
 		printf("pskStr NULL\n");
 		init_psk((unsigned char*) sDFLPSK, psk, &psk_len);
+		if (mbedtls_ssl_conf_psk(&g_conf, psk, psk_len,
+				(unsigned char *) DFL_PSK_IDENTITY, strlen(DFL_PSK_IDENTITY)) != 0) {
+			printf("mbedtls_ssl_conf_psk() failed\n");
+			return -1;
+		}
 	}
 	else {
 		init_psk((unsigned char*) pskStr, psk, &psk_len);
+		if (mbedtls_ssl_conf_psk(&g_conf, psk, psk_len,
+				(unsigned char *) pskIdentityStr, strlen(pskIdentityStr)) != 0) {
+			printf("mbedtls_ssl_conf_psk() failed\n");
+			return -1;
+		}
 	}
 
-	if (mbedtls_ssl_conf_psk(&g_conf, psk, psk_len,
-			(unsigned char *) DFL_PSK_IDENTITY, strlen(DFL_PSK_IDENTITY)) != 0) {
-		printf("mbedtls_ssl_conf_psk() failed\n");
-		return -1;
-	}
 	printf("mbedtls_ssl_setup()\n");
 	if ((ret = mbedtls_ssl_setup(&ssl, &g_conf)) != 0) {
 		printf("mbedtls_ssl_setup() failed ret = %d\n", ret);
