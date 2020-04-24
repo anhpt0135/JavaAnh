@@ -1,4 +1,4 @@
-target=libhello.so
+target=libSSLClientBT.so
 CFLAGS=-I. -I/usr/lib/jvm/java-11-oracle/include -I/usr/lib/jvm/java-11-oracle/include/linux
 CFLAGS +=-I./mbedtls-2.13.0/include
 MBEDLIBDIR=./mbedtls-2.13.0/library/
@@ -7,11 +7,11 @@ obj=$(src:.c=.o)
 
 all:$(target)
 	
-$(target):HelloJNI.h mbedlib $(obj)	
+$(target):SSLClientBT.h mbedlib $(obj)	
 	gcc -shared $(CFLAGS) -o $@ -Wl,--whole-archive $(MBEDLIBDIR)*.a -Wl,--no-whole-archive $(obj)
 
-HelloJNI.h:
-	javac -h . ../src/HelloJNI.java
+SSLClientBT.h:
+	javac -h . ../src/SSLClientBT.java
 
 mbedlib:
 	$(MAKE) -C mbedtls-2.13.0/
@@ -20,6 +20,6 @@ mbedlib:
 	gcc -c -fPIC $(CFLAGS) -o $@ $^ 
 	
 clean:
-	rm -f HelloJNI.h HelloJNI.o *.so *.so.* *.a
+	rm -f *.o *.so *.so.* *.a SSLClientBT.h
 	$(MAKE) -C mbedtls-2.13.0/ clean
 	

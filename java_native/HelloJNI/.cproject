@@ -109,25 +109,7 @@
     	
     <storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
         		
-        <buildTargets>
-            			
-            <target name="HelloJNI.h" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-                				
-                <buildCommand>make</buildCommand>
-                				
-                <buildArguments/>
-                				
-                <buildTarget>HelloJNI.h</buildTarget>
-                				
-                <stopOnError>true</stopOnError>
-                				
-                <useDefaultCommand>true</useDefaultCommand>
-                				
-                <runAllBuilders>true</runAllBuilders>
-                			
-            </target>
-            		
-        </buildTargets>
+        <buildTargets/>
         	
     </storageModule>
     
