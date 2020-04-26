@@ -11,7 +11,7 @@ $(target):SSLClientBT.h mbedlib $(obj)
 	gcc -shared $(CFLAGS) -o $@ -Wl,--whole-archive $(MBEDLIBDIR)*.a -Wl,--no-whole-archive $(obj)
 
 SSLClientBT.h:
-	javac -h . ../src/SSLClientBT.java
+	javac -h . ../src/sslBT/SSLClientBT.java
 
 mbedlib:
 	$(MAKE) -C mbedtls-2.13.0/

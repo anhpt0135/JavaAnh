@@ -1,3 +1,4 @@
+package sslBT;
 
 public class SSLClientBT {
 	static {
@@ -8,10 +9,9 @@ public class SSLClientBT {
 	private static native String sendSecuredCommandBT(String ipAddress, String port, String psk, String pskIdentity,
 			String command, int timeout);
 
-	public static String SendcommandBT(String ip, String port, String psk, String pskID, String command, int timeout) {		
+	public String SendcommandBT(String ip, String port, String psk, String pskID, String command, int timeout) {		
 		return sendSecuredCommandBT(ip, port, psk, pskID, command, timeout);
 	}
-
 	/*
 	 * public static void main(String[] args) { SSLClientBT inst = new
 	 * SSLClientBT(); String result = inst.sendSecuredCommandBT("192.168.1.43",
