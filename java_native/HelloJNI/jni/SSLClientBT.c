@@ -19,6 +19,7 @@
 #include "mbedtls/ssl.h"
 #include "mbedtls/timing.h"
 #include "mbedtls/x509.h"
+#include <sys/socket.h>
 #define DFL_PSK_IDENTITY        "Client_identity"
 char sDFLPSK[32] = { 0x63, 0x61, 0x66, 0x65, 0x64, 0x61, 0x30,
 		0x65, 0x00 };
@@ -72,8 +73,42 @@ static void init_psk(unsigned char *input_psk, unsigned char *psk, int *psk_len)
 		printf("input_psk is null\n");
 }
 
+static struct timeval validTimeout(int timeout) {
+	struct timeval t = {timeout/1000, (timeout % 1000) * 1000};
+	if (t.tv_sec < 0 || (t.tv_sec == 0 && t.tv_usec <= 0)) {
+		t.tv_sec = 0;
+		t.tv_usec = 100;
+	}
+	return t;
+}
+
+static int sendfunc(mbedtls_ssl_context *ssl, mbedtls_net_context server, char *buf, int len, int timeout){
+	struct timeval t;
+	int ret;
+	t = validTimeout(timeout);
+	setsockopt(server.fd, SOL_SOCKET, SO_SNDTIMEO,(char *) &t, sizeof(struct timeval));
+	ret = mbedtls_ssl_write(ssl, (const unsigned char *)buf, len);
+	return ret;
+}
+
+static int recvfunc(mbedtls_ssl_context *ssl, mbedtls_net_context server, char *buf, int len, int timeout){
+	struct timeval t;
+	int ret = 0, byte_read = 0;
+	t = validTimeout(timeout);
+	setsockopt(server.fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&t, len);
+	while(byte_read < len){
+		ret = mbedtls_ssl_read(ssl, buf + byte_read, (size_t)(len - byte_read));
+		if(ret < 0){
+			printf("mbedt_ssl_read() failed \n");
+			return ret;
+		}
+		byte_read += ret;
+	}
+	return byte_read;
+}
+
 static int sendSecuredCommand(const char *ip_Addr, const char *portStr, const char *pskStr,
-		const char *pskIdentityStr, const char *command, char *response) {
+		const char *pskIdentityStr, const char *command, char *response, int timeout) {
 	printf("Inside send command function\n");
 	const char *pers = "ssl_client";
 	char buf[MBEDTLS_SSL_MAX_CONTENT_LEN + 1];
@@ -152,26 +187,16 @@ static int sendSecuredCommand(const char *ip_Addr, const char *portStr, const ch
 
 	snprintf((char *) buf, sizeof(buf) - 1, "%s\r\n", fullCommand);
 
-	int byteSent = 0;
-	while (1) {
-		ret = mbedtls_ssl_write(&ssl, (const unsigned char *) buf, strlen(buf));
-		if (ret <= 0) {
-			break;
-		}
-		byteSent = ret;
+	if((ret = sendfunc(&ssl, server_ctx, buf, strlen(buf), timeout)) < 0){
+		printf("Failed: sendfunc failed \n");
+		return -1;
 	}
 
-	printf("Sent %d bytes\n", byteSent);
-
-	printf("Response from server ... \n");
-
 	memset(buf, 0, sizeof(buf));
-	ret = 0;
-	while (1) {
-		ret = mbedtls_ssl_read(&ssl, (unsigned char *) buf, sizeof(buf));
-		if (ret <= 0) {
-			break;
-		}
+
+	if((ret = recvfunc(&ssl, server_ctx, buf, strlen(buf), timeout)) < 0){
+		printf("Failed: recvfunc failed \n");
+		return -1;
 	}
 
 	printf("received message: %s\n", buf);
@@ -191,15 +216,16 @@ static int sendSecuredCommand(const char *ip_Addr, const char *portStr, const ch
 
 JNIEXPORT jstring JNICALL Java_SSLClientBT_sendSecuredCommandBT(JNIEnv *env,
 		jobject obj, jstring jipAddr, jstring jport, jstring jpsk,
-		jstring jpskIdentity, jstring jcommand) {
+		jstring jpskIdentity, jstring jcommand, jint jtimeout) {
 	printf("Hello from HelloJNI.c\n");
 	const char *ip_Addr = (*env)->GetStringUTFChars(env, jipAddr, NULL);
 	const char *portStr = (*env)->GetStringUTFChars(env, jport, NULL);
 	const char *pskStr = (*env)->GetStringUTFChars(env, jpsk, NULL);
 	const char *pskIdentityStr = (*env)->GetStringUTFChars(env, jpskIdentity, NULL);
 	const char *command = (*env)->GetStringUTFChars(env, jcommand, NULL);
+	int timeout = (int) jtimeout;
 	printf("%s %s %s %s %s\n", ip_Addr, portStr, pskStr, pskIdentityStr, command);
 	char response[256];
-	sendSecuredCommand(ip_Addr, portStr, pskStr, pskIdentityStr, command, response);
+	sendSecuredCommand(ip_Addr, portStr, pskStr, pskIdentityStr, command, response, timeout);
 	return (*env)->NewStringUTF(env, response);
 }

@@ -1,5 +1,5 @@
 target=libSSLClientBT.so
-CFLAGS=-I. -I/usr/lib/jvm/java-11-oracle/include -I/usr/lib/jvm/java-11-oracle/include/linux
+CFLAGS=-I. -I/usr/lib/jvm/java-11-openjdk-amd64/include -I/usr/lib/jvm/java-11-openjdk-amd64/include/linux
 CFLAGS +=-I./mbedtls-2.13.0/include
 MBEDLIBDIR=./mbedtls-2.13.0/library/
 src=$(wildcard *.c)
